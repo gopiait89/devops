@@ -1,4 +1,3 @@
-```groovy
 pipeline {
     agent {
         kubernetes {
@@ -48,7 +47,7 @@ spec:
 
         stage('Git Checkout') {
             steps {
-                sh 'echo "Source code checked out by Jenkins SCM"'
+                echo 'Source code checkout is handled by Jenkins SCM.'
                 sh 'pwd'
                 sh 'ls -la'
             }
@@ -57,6 +56,8 @@ spec:
         stage('Maven Build and Test') {
             steps {
                 container('maven') {
+                    echo 'Building Spring Boot application using Maven'
+
                     sh 'java -version'
                     sh 'mvn -version'
                     sh 'mvn -B clean verify'
@@ -78,10 +79,11 @@ spec:
                                 exit 0
                             fi
 
+                            echo "Docker daemon is not ready yet..."
                             sleep 2
                         done
 
-                        echo "Docker daemon failed to start"
+                        echo "ERROR: Docker daemon failed to start"
                         exit 1
                     '''
                 }
@@ -92,6 +94,8 @@ spec:
             steps {
                 container('docker') {
                     sh '''
+                        echo "Building Docker image..."
+
                         docker build \
                           -t $DOCKER_IMAGE:$BUILD_NUMBER \
                           -t $DOCKER_IMAGE:latest .
@@ -145,4 +149,3 @@ spec:
         }
     }
 }
-```
